@@ -1,12 +1,7 @@
 # Call proprietary blob setup
 ifneq ($(findstring a20, $(TARGET_PRODUCT)),)
 $(call inherit-product, vendor/samsung/universal7885-common/universal7885-common-vendor.mk)
-else ifneq ($(findstring a40, $(TARGET_PRODUCT)),)
-$(call inherit-product, vendor/samsung/universal7904-common/universal7904-common-vendor.mk)
 endif
-
-# .apex packages
-$(call inherit-product, $(SRC_TARGET_DIR)/product/updatable_apex.mk)
 
 # Build Fingerprints
 $(call inherit-product, $(LOCAL_PATH)/fingerprint.mk)
@@ -20,13 +15,6 @@ USE_LEGACY_BOOTANIMATION := true
 # For *_auto_generated_rro_vendor.apk
 PRODUCT_ENFORCE_RRO_TARGETS := framework-res SystemUI Bluetooth
 PRODUCT_ENFORCE_RRO_EXCLUDED_OVERLAYS := # leave it empty
-
-# Disable APEX compression
-# Keep this after including updatable_apex.mk
-PRODUCT_COMPRESSED_APEX := false
-
-# Audio
-TARGET_EXCLUDES_AUDIOFX := true
 
 PRODUCT_PACKAGES += \
     android.hardware.audio@7.0-impl \
@@ -99,11 +87,9 @@ PRODUCT_PACKAGES += \
     android.hardware.biometrics.fingerprint@2.3-service.samsung
 endif
 
-ifeq ($(findstring a40, $(TARGET_PRODUCT)),)
 # Samsung FMRadio impl
 PRODUCT_PACKAGES += \
     FMRadio
-endif
 
 # Gatekeeper
 PRODUCT_PACKAGES += \
@@ -121,8 +107,7 @@ PRODUCT_PACKAGES += \
 PRODUCT_PACKAGES += \
     android.hardware.graphics.allocator@2.0-impl \
     android.hardware.graphics.allocator@2.0-service \
-    android.hardware.graphics.composer@2.1-impl \
-    android.hardware.graphics.composer@2.1-service \
+    android.hardware.graphics.composer@2.4-service \
     android.hardware.graphics.mapper@2.0-impl \
     libgui_vendor
 
@@ -153,6 +138,10 @@ PRODUCT_PACKAGES += \
 PRODUCT_COPY_FILES += \
     $(LOCAL_PATH)/configs/keylayout/Codec3035_Headset_Events.kl:$(TARGET_COPY_OUT_VENDOR)/usr/keylayout/Codec3035_Headset_Events.kl \
     $(LOCAL_PATH)/configs/keylayout/uinput-sec-fp.kl:$(TARGET_COPY_OUT_VENDOR)/usr/keylayout/uinput-sec-fp.kl
+
+# KeyLogger
+PRODUCT_PACKAGES += \
+    keyhandler
 
 # Keymaster
 PRODUCT_PACKAGES += \
@@ -188,7 +177,10 @@ PRODUCT_COPY_FILES += \
 
 # Overlays
 DEVICE_PACKAGE_OVERLAYS += $(LOCAL_PATH)/overlay
+TARGET_ROM := $(shell cat $(LOCAL_PATH)/vendor_name)
+ifeq ($(TARGET_ROM), derp)
 DEVICE_PACKAGE_OVERLAYS += $(LOCAL_PATH)/overlay-derp
+endif
 
 # Permissions
 PRODUCT_COPY_FILES += \
@@ -267,16 +259,22 @@ PRODUCT_PACKAGES += \
     android.hardware.radio.config@1.2.vendor \
     android.hardware.radio.deprecated@1.0.vendor
 
+# RCS
+PRODUCT_PACKAGES += \
+    com.android.ims.rcsmanager \
+    PresencePolling \
+    RcsService
+
 PRODUCT_PACKAGES += \
     secril_config_svc
+
+# Ueventd
+PRODUCT_COPY_FILES += \
+    $(LOCAL_PATH)/rootdir/etc/ueventd.rc:$(TARGET_COPY_OUT_VENDOR)/ueventd.rc
 
 # Screen density
 PRODUCT_AAPT_CONFIG := normal
 PRODUCT_AAPT_PREF_CONFIG := xxhdpi
-
-# Seccomp
-PRODUCT_COPY_FILES += \
-    $(LOCAL_PATH)/seccomp/mediacodec.policy:$(TARGET_COPY_OUT_VENDOR)/etc/seccomp_policy/mediacodec.policy
 
 # Sensors
 PRODUCT_PACKAGES += \
@@ -304,7 +302,6 @@ PRODUCT_COPY_FILES += \
     $(LOCAL_PATH)/configs/sysconfig/component-overrides.xml:$(TARGET_COPY_OUT_VENDOR)/etc/sysconfig/component-overrides-bt.xml \
     $(LOCAL_PATH)/configs/sysconfig/pixel_eureka.xml:$(TARGET_COPY_OUT_PRODUCT)/etc/sysconfig/pixel_eureka.xml
 
-
 # Thermal
 PRODUCT_PACKAGES += \
     android.hardware.thermal@1.0-impl \
@@ -331,9 +328,9 @@ PRODUCT_COPY_FILES += \
     $(LOCAL_PATH)/configs/wifi/wpa_supplicant.conf:$(TARGET_COPY_OUT_VENDOR)/etc/wifi/wpa_supplicant.conf \
     $(LOCAL_PATH)/configs/wifi/wpa_supplicant_overlay.conf:$(TARGET_COPY_OUT_VENDOR)/etc/wifi/wpa_supplicant_overlay.conf
 
-# Copies the APN list file into $(TARGET_COPY_OUT_SYSTEM)/etc
+# Copies the APN list file into $(TARGET_COPY_OUT_PRODUCT)/etc
 PRODUCT_COPY_FILES += \
-    $(LOCAL_PATH)/configs/apns-conf.xml:$(TARGET_COPY_OUT_SYSTEM)/etc/apns-conf.xml
+    $(LOCAL_PATH)/configs/apns-conf.xml:$(TARGET_COPY_OUT_PRODUCT)/etc/apns-conf.xml
 
 PRODUCT_CFI_INCLUDE_PATHS += hardware/samsung_slsi/scsc_wifibt/wpa_supplicant_lib
 

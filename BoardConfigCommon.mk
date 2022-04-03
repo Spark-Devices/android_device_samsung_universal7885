@@ -63,9 +63,6 @@ KERNEL_LD := LD=ld.lld
 # HIDL
 include device/samsung/universal7885-common/configs/vintf/manifest.mk
 
-# LMKD stats logging
-TARGET_LMKD_STATS_LOG := true
-
 # Partitions
 BOARD_BOOTIMAGE_PARTITION_SIZE := 37748736
 BOARD_VENDORIMAGE_FILE_SYSTEM_TYPE := ext4
@@ -73,7 +70,6 @@ BOARD_FLASH_BLOCK_SIZE := 131072
 
 # Properties
 BOARD_PROPERTY_OVERRIDES_SPLIT_ENABLED := true
-TARGET_PRODUCT_PROP += $(COMMON_PATH)/product.prop
 TARGET_VENDOR_PROP += $(COMMON_PATH)/vendor.prop
 TARGET_SYSTEM_PROP += $(COMMON_PATH)/system.prop
 
@@ -98,7 +94,6 @@ BOARD_VENDOR_SEPOLICY_DIRS += \
 
 TARGET_ROM := $(shell cat $(COMMON_PATH)/vendor_name)
 ifeq ($(TARGET_ROM), derp)
-$(warning Building Derpfest)
 BOARD_VENDOR_SEPOLICY_DIRS += \
         $(COMMON_PATH)/sepolicy/derp
 endif
@@ -119,3 +114,8 @@ BOARD_HOSTAPD_DRIVER             := NL80211
 BOARD_HOSTAPD_PRIVATE_LIB        := lib_driver_cmd_$(BOARD_WLAN_DEVICE)
 WIFI_HIDL_FEATURE_DUAL_INTERFACE := true
 WIFI_HIDL_UNIFIED_SUPPLICANT_SERVICE_RC_ENTRY := true
+
+# wpa_supplicant feature flags
+CONFIG_ACS := true
+CONFIG_IEEE80211AC := true
+

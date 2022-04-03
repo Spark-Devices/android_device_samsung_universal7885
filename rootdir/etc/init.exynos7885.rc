@@ -11,26 +11,18 @@ on init
     # Fastcharge
     chown system radio /sys/class/sec/switch/afc_disable
 
-    # ZRAM parameters
+    write /proc/sys/vm/swappiness 180
+
+    # ZRAM setup
+    write /sys/block/zram0/comp_algorithm lz4
+    write /sys/block/zram0/max_comp_streams 8
     write /proc/sys/vm/page-cluster 0
-    write /proc/sys/vm/swappiness 160
-    write /sys/block/zram0/comp_algorithm zstd
 
     ## SCSC WLAN
     # SD-755: Increase default socket rx buffer limit
     write /proc/sys/net/core/rmem_default 327680
     write /proc/sys/net/core/rmem_max 327680
     
-# Mount cpuset group for cameraserver
-    mkdir /dev/cpuset/cameraserver
-    copy /dev/cpuset/cpus /dev/cpuset/cameraserver/cpus
-    copy /dev/cpuset/mems /dev/cpuset/cameraserver/mems
-    chown system system /dev/cpuset/cameraserver
-    chown system system /dev/cpuset/cameraserver/tasks
-    chown system system /dev/cpuset/cameraserver/cpus
-    chmod 0664 /dev/cpuset/cameraserver/tasks
-    chmod 0664 /dev/cpuset/cameraserver/cpus
-
 # For CPUSET(7885)   0-3, 4-5, 6-7
     chown system system /dev/cpuset/top-app/cpus
     chown system system /dev/cpuset/foreground/cpus

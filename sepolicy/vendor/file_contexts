@@ -139,9 +139,6 @@
 /(vendor|system/vendor)/bin/hw/android\.hardware\.light(@[0-9].[0-9])?-service\.samsung              u:object_r:hal_light_default_exec:s0
 /(vendor|system/vendor)/bin/hw/android\.hardware\.thermal@[0-9].[0-9]-service\.samsung            u:object_r:hal_thermal_default_exec:s0
 
-# DEBUG DAEMON
-/(vendor|system/vendor)/bin/debug_daemon 		u:object_r:debug_daemon_exec:s0
-/data/debug(/.*)?   					u:object_r:debug_daemon_data_file:s0
 ####################################
 # Devices
 /dev/mali[0-9]*                                             u:object_r:gpu_device:s0
@@ -212,7 +209,7 @@
 /(vendor|system/vendor)/bin/hw/android\.hardware\.drm@[0-9]\.[0-9]-service\.widevine          u:object_r:hal_drm_widevine_exec:s0
 /(vendor|system/vendor)/bin/hw/android\.hardware\.keymaster@[0-9]\.[0-9]-service\.samsung     u:object_r:hal_keymaster_default_exec:s0
 /(vendor|system/vendor)/bin/hw/android\.hardware\.nfc@[0-9]\.[0-9]-service\.samsung           u:object_r:hal_nfc_default_exec:s0
-/(vendor|system/vendor)/bin/hw/android\.hardware\.usb@[0-9]\.[0-9]-service\.exynos7885        u:object_r:hal_usb_default_exec:s0
+/(vendor|system/vendor)/bin/hw/android\.hardware\.usb@[0-9]\.[0-9]-service\.samsung        u:object_r:hal_usb_default_exec:s0
 /(vendor|system/vendor)/bin/hw/android\.hardware\.camera\.provider@[0-9]\.[0-9]-service\.exynos7885        u:object_r:hal_camera_default_exec:s0
 /(vendor|system/vendor)/bin/hw/android\.hardware\.usb@[0-9]\.[0-9]-service\.a10	              u:object_r:hal_usb_default_exec:s0
 /(vendor|system/vendor)/bin/hw/vendor\.samsung\.hardware\.gnss@[0-9]\.[0-9]-service           u:object_r:hal_gnss_default_exec:s0
