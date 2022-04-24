@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2020 Paranoid Android
+ * Copyright (C) 2022 Eureka Team
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,29 +16,15 @@
 package com.eurekateam.samsungextras.battery
 
 import android.os.Bundle
-import android.view.MenuItem
-import androidx.fragment.app.FragmentActivity
-import com.android.internal.R.id.content
-import com.android.internal.R.id.home
+import com.android.settingslib.collapsingtoolbar.CollapsingToolbarBaseActivity
+import com.android.settingslib.collapsingtoolbar.R
 
-class BatteryActivity : FragmentActivity() {
+class BatteryActivity : CollapsingToolbarBaseActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        val fragment = this.supportFragmentManager.findFragmentById(content)
-        val batteryFragment: BatteryFragment
-        if (fragment == null) {
-            batteryFragment = BatteryFragment()
-            this.supportFragmentManager.beginTransaction()
-                .add(content, batteryFragment)
-                .commit()
-        }
-    }
-
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        if (item.itemId == home) {
-            finish()
-            return true
-        }
-        return super.onOptionsItemSelected(item)
+        supportFragmentManager.beginTransaction().replace(
+            R.id.content_frame,
+            BatteryFragment()
+        ).commit()
     }
 }

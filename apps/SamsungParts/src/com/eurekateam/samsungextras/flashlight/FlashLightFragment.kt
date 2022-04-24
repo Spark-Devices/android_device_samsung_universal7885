@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2020 Paranoid Android
+ * Copyright (C) 2022 Eureka Team
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,43 +15,53 @@
  */
 package com.eurekateam.samsungextras.flashlight
 
+import android.content.SharedPreferences
+import android.os.Build
 import android.os.Bundle
+import android.widget.Switch
 import androidx.preference.Preference
 import androidx.preference.PreferenceFragmentCompat
-import com.eurekateam.samsungextras.GlobalConstants
+import androidx.preference.PreferenceManager
+import androidx.preference.SeekBarPreference
+import com.android.settingslib.widget.MainSwitchPreference
+import com.android.settingslib.widget.OnMainSwitchChangeListener
 import com.eurekateam.samsungextras.R
 import com.eurekateam.samsungextras.interfaces.Flashlight
-import com.eurekateam.samsungextras.preferences.CustomSeekBarPreference
-import com.eurekateam.samsungextras.utils.SystemProperties
-import java.io.File
 
-class FlashLightFragment : PreferenceFragmentCompat(), Preference.OnPreferenceChangeListener {
-    private var mFlashLightPref: CustomSeekBarPreference? = null
+class FlashLightFragment : PreferenceFragmentCompat(), Preference.OnPreferenceChangeListener, OnMainSwitchChangeListener {
+    private lateinit var mFlashLightPref: SeekBarPreference
+    private lateinit var mSharedPreferences: SharedPreferences
+    private lateinit var mFlashLightEnable: MainSwitchPreference
     override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
         addPreferencesFromResource(R.xml.flashlight_settings)
-        mFlashLightPref = findPreference(PREF_FLASHLIGHT)
-        assert(mFlashLightPref != null)
-        mFlashLightPref!!.onPreferenceChangeListener = this
-        if (!File(GlobalConstants.FLASHLIGHT_SYSFS).exists()) {
-            mFlashLightPref!!.isEnabled = false
-        }
-        mFlashLightPref!!.setMax(10)
-        mFlashLightPref!!.setMin(1)
-        val isa10 = SystemProperties.read("ro.product.device") == "a10"
-        mFlashLightPref!!.value = Flashlight.getFlash(if (isa10) 1 else 0)
+        mSharedPreferences = PreferenceManager.getDefaultSharedPreferences(requireContext())
+        mFlashLightPref = findPreference(PREF_FLASHLIGHT)!!
+        mFlashLightPref.onPreferenceChangeListener = this
+        mFlashLightPref.setMax(10)
+        mFlashLightPref.setMin(1)
+        mFlashLightPref.value = Flashlight.getFlash(if (Build.DEVICE.contains("a10")) 1 else 0)
+        mFlashLightEnable = findPreference(PREF_FLASHLIGHT_ENABLE)!!
+        mFlashLightEnable.isChecked = mSharedPreferences.getBoolean(PREF_FLASHLIGHT_ENABLE, true)
+        mFlashLightEnable.addOnSwitchChangeListener(this)
+        mFlashLightPref.isEnabled = mFlashLightEnable.isChecked
     }
 
     override fun onPreferenceChange(preference: Preference, newValue: Any): Boolean {
-        if (preference === mFlashLightPref) {
+        if (preference == mFlashLightPref) {
             val value = newValue as Int
             Flashlight.setFlash(value)
-            mFlashLightPref!!.setValue(value, true)
+            mSharedPreferences.edit().putInt(PREF_FLASHLIGHT, value).apply()
             return true
         }
         return false
     }
 
-    companion object {
-        private const val PREF_FLASHLIGHT = "flashlight_pref"
+    override fun onSwitchChanged(switchView: Switch, isChecked: Boolean) {
+        Flashlight.setEnabled(isChecked)
+        mSharedPreferences.edit().putBoolean(PREF_FLASHLIGHT_ENABLE, isChecked)
+        mFlashLightPref.isEnabled = isChecked
+    } companion object {
+        const val PREF_FLASHLIGHT = "flashlight_pref"
+        const val PREF_FLASHLIGHT_ENABLE = "flashlight_enable"
     }
 }

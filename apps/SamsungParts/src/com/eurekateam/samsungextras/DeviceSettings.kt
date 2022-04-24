@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2020 The Xiaomi-SM6250 Project
+ * Copyright (C) 2022 Eureka Team
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,8 +16,9 @@
 package com.eurekateam.samsungextras
 
 import android.content.Intent
+import android.content.SharedPreferences
+import android.os.Build
 import android.os.Bundle
-import android.widget.Toast
 import androidx.preference.Preference
 import androidx.preference.PreferenceFragmentCompat
 import androidx.preference.PreferenceManager
@@ -25,16 +26,17 @@ import androidx.preference.SwitchPreference
 import com.eurekateam.samsungextras.battery.BatteryActivity
 import com.eurekateam.samsungextras.flashlight.FlashLightActivity
 import com.eurekateam.samsungextras.fps.FPSInfoService
-import com.eurekateam.samsungextras.interfaces.GPU.GPU
-import com.eurekateam.samsungextras.interfaces.SELinux.SELinux
+import com.eurekateam.samsungextras.interfaces.Display.DT2W
+import com.eurekateam.samsungextras.interfaces.Display.GloveMode
 import com.eurekateam.samsungextras.speaker.ClearSpeakerActivity
 
 class DeviceSettings : PreferenceFragmentCompat(), Preference.OnPreferenceChangeListener {
+
+    private lateinit var mPrefs: SharedPreferences
     override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
         System.loadLibrary("samsungparts_jni")
         setPreferencesFromResource(R.xml.preferences_samsung_parts, rootKey)
-        val mContext = this.context
-        val prefs = PreferenceManager.getDefaultSharedPreferences(mContext)
+        mPrefs = PreferenceManager.getDefaultSharedPreferences(requireContext())
         val mClearSpeakerPref = findPreference<Preference>(PREF_CLEAR_SPEAKER)!!
         mClearSpeakerPref.onPreferenceClickListener =
             Preference.OnPreferenceClickListener {
@@ -43,21 +45,16 @@ class DeviceSettings : PreferenceFragmentCompat(), Preference.OnPreferenceChange
                 true
             }
         val mFpsInfo = findPreference<SwitchPreference>(PREF_KEY_FPS_INFO)!!
-        mFpsInfo.isChecked = prefs.getBoolean(PREF_KEY_FPS_INFO, false)
+        mFpsInfo.isChecked = mPrefs.getBoolean(PREF_KEY_FPS_INFO, false)
         mFpsInfo.onPreferenceChangeListener = this
-        val mGPUExynos = findPreference<SwitchPreference>(PREF_GPUEXYNOS)!!
-        mGPUExynos.isChecked = GPU == 1
-        mGPUExynos.onPreferenceChangeListener = this
-        val mSELinux = findPreference<Preference>(PREF_SELINUX)!!
-        mSELinux.onPreferenceClickListener =
-            Preference.OnPreferenceClickListener {
-                Toast.makeText(
-                    context,
-                    if (SELinux == 1) "SELinux is in enforcing state." else "SELinux is in permissive state.",
-                    Toast.LENGTH_SHORT
-                ).show()
-                true
-            }
+        val mDT2W = findPreference<SwitchPreference>(PREF_DOUBLE_TAP)!!
+        mDT2W.onPreferenceChangeListener = this
+        mDT2W.isEnabled = !(Build.PRODUCT.contains("a10") || Build.PRODUCT.contains("a20e"))
+        mDT2W.isChecked = mPrefs.getBoolean(PREF_DOUBLE_TAP, false)
+        val mGloveMode = findPreference<SwitchPreference>(PREF_GLOVE_MODE)!!
+        mGloveMode.onPreferenceChangeListener = this
+        mGloveMode.isEnabled = !Build.PRODUCT.contains("a10")
+        mGloveMode.isChecked = mPrefs.getBoolean(PREF_GLOVE_MODE, false)
         val mFlashLight = findPreference<Preference>(PREF_FLASHLIGHT)!!
         mFlashLight.onPreferenceClickListener =
             Preference.OnPreferenceClickListener {
@@ -77,24 +74,25 @@ class DeviceSettings : PreferenceFragmentCompat(), Preference.OnPreferenceChange
     override fun onPreferenceChange(preference: Preference, value: Any): Boolean {
         when (preference.key) {
             PREF_KEY_FPS_INFO -> {
-                val fps_enabled = value as Boolean
-                val fpsinfo = Intent(this.context, FPSInfoService::class.java)
-                if (fps_enabled) {
-                    this.requireContext().startService(fpsinfo)
+                val mEnabled = value as Boolean
+                val mFPSService = Intent(this.context, FPSInfoService::class.java)
+                if (mEnabled) {
+                    requireContext().startService(mFPSService)
                 } else {
-                    this.requireContext().stopService(fpsinfo)
+                    requireContext().stopService(mFPSService)
                 }
+                mPrefs.edit().putBoolean(PREF_KEY_FPS_INFO, mEnabled).apply()
             }
-            PREF_GPUEXYNOS -> {
-                val gpu_enabled = value as Boolean
-                GPU = if (gpu_enabled) 1 else 0
-                Toast.makeText(
-                    context,
-                    if (gpu_enabled) "GPU Throttling is now enabled." else "GPU Throttling is now disabled.",
-                    Toast.LENGTH_SHORT
-                ).show()
+            PREF_DOUBLE_TAP -> {
+                DT2W = value as Boolean
+                mPrefs.edit().putBoolean(PREF_DOUBLE_TAP, value).apply()
+            }
+            PREF_GLOVE_MODE -> {
+                GloveMode = value as Boolean
+                mPrefs.edit().putBoolean(PREF_GLOVE_MODE, value).apply()
             }
             else -> {
+                return false
             }
         }
         return true
@@ -104,8 +102,8 @@ class DeviceSettings : PreferenceFragmentCompat(), Preference.OnPreferenceChange
         const val PREF_KEY_FPS_INFO = "fps_info"
         private const val PREF_CLEAR_SPEAKER = "clear_speaker_settings"
         private const val PREF_FLASHLIGHT = "flashlight_settings"
-        const val PREF_GPUEXYNOS = "gpuexynos_settings"
-        private const val PREF_SELINUX = "selinux_settings"
+        const val PREF_DOUBLE_TAP = "dt2w_settings"
+        const val PREF_GLOVE_MODE = "glove_mode_settings"
         const val PREF_BATTERY = "battery_settings"
     }
 }

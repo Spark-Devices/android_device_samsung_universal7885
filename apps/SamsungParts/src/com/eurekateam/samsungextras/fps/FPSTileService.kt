@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2020 Xiaomi-SM6250 Project
+ * Copyright (C) 2022 Eureka Team
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,7 +21,7 @@ import android.service.quicksettings.TileService
 
 // TODO: Add FPS drawables
 class FPSTileService : TileService() {
-    private lateinit var fpsinfo : Intent
+    private lateinit var fpsinfo: Intent
     private var isShowing = false
     override fun onStartListening() {
         super.onStartListening()

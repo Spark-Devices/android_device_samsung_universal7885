@@ -17,20 +17,15 @@
 package com.eurekateam.samsungextras.dolby
 
 import android.os.Bundle
+import com.android.settingslib.collapsingtoolbar.CollapsingToolbarBaseActivity
+import com.android.settingslib.collapsingtoolbar.R
 
-import androidx.fragment.app.FragmentActivity
-import com.android.internal.R.id.content
-
-class DolbyActivity : FragmentActivity() {
-    override fun onCreate(savedInstanceState: Bundle?) {
+class DolbyActivity : CollapsingToolbarBaseActivity() {
+    public override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        val fragment = this.supportFragmentManager.findFragmentById(content)
-        val dolbyFragment: DolbyFragment
-        if (fragment == null) {
-            dolbyFragment = DolbyFragment()
-            this.supportFragmentManager.beginTransaction()
-                .add(content, dolbyFragment)
-                .commit()
-        }
+        supportFragmentManager.beginTransaction().replace(
+            R.id.content_frame,
+            DolbyFragment()
+        ).commit()
     }
 }

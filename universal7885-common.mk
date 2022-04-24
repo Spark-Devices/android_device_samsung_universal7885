@@ -1,7 +1,5 @@
 # Call proprietary blob setup
-ifneq ($(findstring a20, $(TARGET_PRODUCT)),)
 $(call inherit-product, vendor/samsung/universal7885-common/universal7885-common-vendor.mk)
-endif
 
 # Build Fingerprints
 $(call inherit-product, $(LOCAL_PATH)/fingerprint.mk)
@@ -53,7 +51,8 @@ PRODUCT_COPY_FILES += \
     hardware/samsung_slsi/libbt/conf/bt_vendor.conf:$(TARGET_COPY_OUT_VENDOR)/etc/bluetooth/bt_vendor.conf
 
 # Camera
-ifeq ($(findstring a10, $(TARGET_PRODUCT)),)
+TARGET_BOARD_CAMERA_COUNT ?= 3
+ifeq ($(TARGET_BOARD_CAMERA_COUNT), 3)
 PRODUCT_PACKAGES += \
     android.hardware.camera.provider@2.5-service.exynos7885
 else
@@ -70,7 +69,7 @@ PRODUCT_PACKAGES += \
     libsuspend
 
 # Debug
-PRODUCT_PACKAGES += debug_daemon
+PRODUCT_PACKAGES += eklogger
 
 # DRM
 PRODUCT_PACKAGES += \
@@ -81,8 +80,9 @@ PRODUCT_PACKAGES += \
     android.hardware.drm@1.2.vendor \
     android.hardware.drm@1.3.vendor
 
-ifeq ($(findstring a10, $(TARGET_PRODUCT)),)
 # Fingerprint
+TARGET_BOARD_HAS_FP ?= true
+ifeq ($(TARGET_BOARD_HAS_FP), true)
 PRODUCT_PACKAGES += \
     android.hardware.biometrics.fingerprint@2.3-service.samsung
 endif
@@ -177,10 +177,7 @@ PRODUCT_COPY_FILES += \
 
 # Overlays
 DEVICE_PACKAGE_OVERLAYS += $(LOCAL_PATH)/overlay
-TARGET_ROM := $(shell cat $(LOCAL_PATH)/vendor_name)
-ifeq ($(TARGET_ROM), derp)
-DEVICE_PACKAGE_OVERLAYS += $(LOCAL_PATH)/overlay-derp
-endif
+# DEVICE_PACAKGE_OVERLAYS += $(LOCAL_PATH)/overlay-rom
 
 # Permissions
 PRODUCT_COPY_FILES += \
@@ -244,11 +241,6 @@ PRODUCT_PACKAGES += \
 PRODUCT_COPY_FILES += \
     $(LOCAL_PATH)/configs/public.libraries.txt:$(TARGET_COPY_OUT_VENDOR)/etc/public.libraries.txt
 
-# Notch
-PRODUCT_PACKAGES += \
-    NotchBarKiller \
-    VShapedNotch
-
 # RIL
 PRODUCT_PACKAGES += \
     android.hardware.radio@1.2.vendor \
@@ -299,8 +291,7 @@ PRODUCT_SOONG_NAMESPACES += \
 
 # Sysconfig
 PRODUCT_COPY_FILES += \
-    $(LOCAL_PATH)/configs/sysconfig/component-overrides.xml:$(TARGET_COPY_OUT_VENDOR)/etc/sysconfig/component-overrides-bt.xml \
-    $(LOCAL_PATH)/configs/sysconfig/pixel_eureka.xml:$(TARGET_COPY_OUT_PRODUCT)/etc/sysconfig/pixel_eureka.xml
+    $(LOCAL_PATH)/configs/sysconfig/component-overrides.xml:$(TARGET_COPY_OUT_VENDOR)/etc/sysconfig/component-overrides-bt.xml
 
 # Thermal
 PRODUCT_PACKAGES += \
@@ -315,6 +306,10 @@ PRODUCT_PACKAGES += \
 PRODUCT_COPY_FILES += \
     prebuilts/vndk/v29/arm64/arch-arm64-armv8-a/shared/vndk-sp/libcutils.so:$(TARGET_COPY_OUT_VENDOR)/lib64/libcutils-v29.so \
     prebuilts/vndk/v29/arm64/arch-arm-armv8-a/shared/vndk-sp/libcutils.so:$(TARGET_COPY_OUT_VENDOR)/lib/libcutils-v29.so
+
+# Workaround for vintf issues...
+PRODUCT_COPY_FILES += \
+    $(LOCAL_PATH)/configs/vintf/compatibility_matrix.3.xml:$(TARGET_COPY_OUT_SYSTEM)/etc/vintf/compatibility_matrix.3.xml
 
 # Wifi
 PRODUCT_PACKAGES += \
