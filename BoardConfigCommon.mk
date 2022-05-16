@@ -13,6 +13,7 @@ TARGET_BOARD_PLATFORM := universal7904
 TARGET_BOOTLOADER_BOARD_NAME := universal7904
 endif
 
+TARGET_SPECIFIC_HEADER_PATH := $(COMMON_PATH)/include
 TARGET_NO_BOOTLOADER := true
 TARGET_NO_RADIOIMAGE := true
 
@@ -47,6 +48,9 @@ TARGET_USERIMAGES_USE_EXT4 := true
 TARGET_USERIMAGES_USE_F2FS := true
 BOARD_CACHEIMAGE_FILE_SYSTEM_TYPE := ext4
 
+# Fingerprint 
+TARGET_SEC_FP_HAS_FINGERPRINT_GESTURES := true
+
 # Init
 TARGET_INIT_VENDOR_LIB := //$(COMMON_PATH):libinit_universal7885
 
@@ -59,6 +63,11 @@ BOARD_MKBOOTIMG_ARGS := --kernel_offset 0x00008000 --ramdisk_offset 0x01000000 -
 TARGET_KERNEL_SOURCE := kernel/samsung/exynos7885
 TARGET_KERNEL_CLANG_COMPILE := true
 KERNEL_LD := LD=ld.lld
+
+BOARD_USES_METADATA_PARTITION := true
+
+# Keymaster
+TARGET_KEYMASTER_VARIANT := samsung
 
 # HIDL
 include device/samsung/universal7885-common/configs/vintf/manifest.mk
@@ -84,6 +93,7 @@ TARGET_RELEASETOOLS_EXTENSIONS := $(COMMON_PATH)/releasetools
 ENABLE_VENDOR_RIL_SERVICE := true
 
 BOARD_ROOT_EXTRA_FOLDERS := factory
+BOARD_ROOT_EXTRA_SYMLINKS := /factory:/efs
 
 # Sepolicy
 SYSTEM_EXT_PUBLIC_SEPOLICY_DIRS += \
@@ -91,12 +101,6 @@ SYSTEM_EXT_PUBLIC_SEPOLICY_DIRS += \
 
 BOARD_VENDOR_SEPOLICY_DIRS += \
     $(COMMON_PATH)/sepolicy/vendor
-
-TARGET_ROM := $(shell cat $(COMMON_PATH)/vendor_name)
-ifeq ($(TARGET_ROM), derp)
-BOARD_VENDOR_SEPOLICY_DIRS += \
-        $(COMMON_PATH)/sepolicy/derp
-endif
 
 SYSTEM_EXT_PRIVATE_SEPOLICY_DIRS += \
     $(COMMON_PATH)/sepolicy/private
