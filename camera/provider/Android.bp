@@ -17,12 +17,13 @@ cc_binary {
     name: "android.hardware.camera.provider@2.5-service.exynos7885",
     defaults: [
         "hidl_defaults",
+        "eureka_defaults",
     ],
     proprietary: true,
     relative_install_path: "hw",
     srcs: [
         "SamsungCameraProvider.cpp",
-        "service.cpp"
+        "service.cpp",
     ],
     init_rc: ["android.hardware.camera.provider@2.5-service.exynos7885.rc"],
     shared_libs: [

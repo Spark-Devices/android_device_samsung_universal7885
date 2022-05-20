@@ -17,7 +17,8 @@
 cc_binary {
     name: "eklogger",
     srcs: [
-         "Logger.cpp",
+        "Logger.cpp",
     ],
+    defaults: ["eureka_defaults"],
     init_rc: ["eklogger.rc"],
 }

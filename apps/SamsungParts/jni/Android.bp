@@ -1,5 +1,6 @@
 cc_library_shared {
     name: "libsamsungparts_jni",
+    defaults: ["eureka_defaults"],
     cflags: [
         "-Wall",
         "-Wextra",
@@ -8,12 +9,11 @@ cc_library_shared {
     ],
     srcs: ["*.cpp"],
     header_libs: ["jni_headers"],
-    static_libs: [ "libc++fs" ],
+    static_libs: ["libc++fs"],
     shared_libs: [
         "libhidlbase",
         "liblog",
         "libutils",
         "vendor.eureka.hardware.parts@1.0",
-    ]
+    ],
 }
-
